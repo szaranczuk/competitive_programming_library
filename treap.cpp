@@ -20,11 +20,11 @@ ll getrand(ll lo, ll hi)
 
 struct node
 {
-	int key, prior;
+	int key, prior, size;
 	int l, r;
 	node() {}
-	node(int key) : key(key), prior(getrand(1, 1e9)), l(0), r(0) {}
-	node(int key, int prior) : key(key), prior(prior), l(0), r(0) {}
+	node(int key) : key(key), prior(getrand(1, 1e9)), size(1), l(0), r(0) {}
+	node(int key, int prior) : key(key), prior(prior), size(1), l(0), r(0) {}
 };
 
 int node_count = 1;
@@ -49,6 +49,15 @@ int newNode(int key, int prior)
 	return node_count++;
 }
 
+void update_size(int t)
+{
+	nodes[t].size = 0;
+	int l = nodes[t].l;
+	int r = nodes[t].r;
+	if (l) nodes[t].size += nodes[l].size;
+	if (r) nodes[t].size += nodes[r].size;
+	nodes[t].size++;
+}
 void merge(int t, int l, int r)
 {
 	if (l == 0 || r == 0)
@@ -65,11 +74,18 @@ void merge(int t, int l, int r)
 		merge(nodes[r].l, l, nodes[r].l);
 		nodes[t] = nodes[r];
 	}
+	update_size(t);
 }
+
 
 void split(int t, int key, int& l, int& r)
 {
-	if (nodes[t].key <= key)
+	if (t == 0)
+	{
+		l = 0;
+		r = 0;
+	}
+	else if (nodes[t].key <= key)
 	{
 		l = t;
 		split(nodes[t].r, key, nodes[l].r, r);
@@ -79,6 +95,8 @@ void split(int t, int key, int& l, int& r)
 		r = t;
 		split(nodes[t].l, key, l, nodes[r].l);
 	}
+	if(l) update_size(l);
+	if(r) update_size(r);
 }
 
 void insert(int& t, int k)
@@ -92,7 +110,7 @@ void insert(int& t, int k)
 		split(t, nodes[k].key, nodes[k].l, nodes[k].r);
 		t = k;
 	}
-	else if (nodes[t].key > nodes[k].key)
+	else if (nodes[t].key < nodes[k].key)
 	{
 		insert(nodes[t].r, k);
 	}
@@ -100,6 +118,7 @@ void insert(int& t, int k)
 	{
 		insert(nodes[t].l, k);
 	}
+	update_size(t);
 }
 
 void insert(int x)
@@ -108,25 +127,36 @@ void insert(int x)
 	insert(root, k);
 }
 
-void erase(int& t, int key)
+void erase(int key, int& t = root)
 {
 	if (t == 0) return;
-	else if (nodes[t].key > key)
-	{
-		erase(nodes[t].r, key);
-	}
 	else if (nodes[t].key < key)
 	{
-		erase(nodes[t].l, key);
+		erase(key, nodes[t].r);
+	}
+	else if (nodes[t].key > key)
+	{
+		erase(key, nodes[t].l);
 	}
 	else
 	{
 		merge(t, nodes[t].l, nodes[t].r);
 	}
+	update_size(t);
 }
 
-void erase(int key)
+int find_kth(int k, int t = root)
 {
-	erase(root, key);
+	int lsize;
+	if (nodes[t].l == 0) lsize = 0;
+	else lsize = nodes[nodes[t].l].size;
+	if (lsize == k) return nodes[t].key;
+	else if (lsize < k)
+	{
+		return find_kth(k - lsize - 1, nodes[t].r);
+	}
+	else
+	{
+		return find_kth(k, nodes[t].l);
+	}
 }
-
