@@ -27,6 +27,7 @@ struct Dsu
 		this->entries[v].rank = 0;
 		this->entries[v].val = val;
 	}
+    Dsu() {}
 	Dsu(int _size)
 	{
 		this->entries.resize(_size);
