@@ -27,7 +27,7 @@ struct Dsu
 		this->entries[v].rank = 0;
 		this->entries[v].val = val;
 	}
-    Dsu() {}
+    Dsu(){}
 	Dsu(int _size)
 	{
 		this->entries.resize(_size);
@@ -59,4 +59,5 @@ struct Dsu
 			MergeFunc(this->entries[a_parent].val, this->entries[b_parent].val, this->entries[a_parent].val);
 		}
 	}
+    bool are_together(int a, int b) {return this->find_parent(a) == this->find_parent(b);}
 };
