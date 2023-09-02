@@ -40,10 +40,11 @@ struct Dsu
 		this->entries.resize(_size);
 		for (int i = 0; i < _size; i++) this->makeset(i, arr[i]);
 	}
-	void unify(int a, int b)
+	bool unify(int a, int b)
 	{
 		int a_parent = this->find_parent(a);
 		int b_parent = this->find_parent(b);
+		if (a_parent == b_parent) return false;
 		if (this->entries[a_parent].tree_rank > this->entries[b_parent].tree_rank)
 		{
 			this->entries[b_parent].p = a_parent;
@@ -60,6 +61,7 @@ struct Dsu
 			this->entries[a_parent].tree_rank++;
 			MergeFunc(this->entries[a_parent].val, this->entries[b_parent].val, this->entries[a_parent].val);
 		}
+		return true;
 	}
     bool are_together(int a, int b) {return this->find_parent(a) == this->find_parent(b);}
 };
