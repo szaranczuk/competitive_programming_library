@@ -1,5 +1,9 @@
 #include <bits/stdc++.h>
 
+typedef std::pair<int, int> ii;
+typedef long long ll;
+const int mod = 1e9+7;
+
 struct Matrix
 {
 	std::vector<std::vector<long long>> mat;
@@ -155,6 +159,33 @@ Matrix fast_exp_mod(Matrix base, long long exp, long long mod)
 			ret = tmp;
 		}
 		base = mod_mul(base, base, mod);
+		exp >>= 1;
+	}
+	return ret;
+}
+
+//fast implementation for 2x2 matrix
+
+std::pair<ii, ii> operator*(const std::pair<ii, ii>& a, const std::pair<ii, ii>& b)
+{
+	int r00 = (1ll*a.first.first * b.first.first + 1ll*a.first.second * b.second.first) % mod;
+	int r01 = (1ll*a.first.first * b.first.second + 1ll*a.first.second * b.second.second) % mod;
+	int r10 = (1ll*a.second.first * b.first.first + 1ll*a.second.second * b.second.first) % mod;
+	int r11 = (1ll*a.second.first * b.first.second + 1ll*a.second.second * b.second.second) % mod;
+	return {{r00, r01}, {r10, r11}};
+}
+
+std::pair<ii, ii> pow(ll exp)
+{
+	std::pair<ii, ii> base = {{3,2}, {1,1}}; //example matrix for 3x2N domino tiling;
+	std::pair<ii, ii> ret = {{1,0},{0,1}};
+	while (exp)
+	{
+		if (exp & 1)
+		{
+			ret = ret * base;
+		}
+		base = base * base;
 		exp >>= 1;
 	}
 	return ret;
